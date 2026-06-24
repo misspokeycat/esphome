@@ -698,7 +698,9 @@ static int recv(uint8_t *data, uint16_t len) { return gListener(data, len); }
 
 static const esp_vhci_host_callback_t callback = {sendReady, recv};
 
-Bluetooth::Bluetooth() : m_impl(std::make_unique<Bluetooth::Impl>(this)) {
+Bluetooth::Bluetooth() : m_impl(std::make_unique<Bluetooth::Impl>(this)) {}
+
+void Bluetooth::init() {
   if (!btStart()) {
     ESP_LOGE(TAG, "Failed to initialize Bluetooth");
     return;

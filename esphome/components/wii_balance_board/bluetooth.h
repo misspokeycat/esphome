@@ -101,6 +101,8 @@ class Bluetooth {
   Bluetooth();
   ~Bluetooth();
 
+  void init();
+
   // Device
   std::span<uint8_t, 6> macAddress();
 

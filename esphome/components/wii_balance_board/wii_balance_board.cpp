@@ -122,6 +122,7 @@ void WiiBalanceBoard::setup() {
     pinMode(led_pin_, OUTPUT);
     digitalWrite(led_pin_, HIGH);
   }
+  bluetooth.init();
   bluetooth.onReady([](auto) { ESP_LOGI(TAG, "Bluetooth initialized"); });
 
   wii.onEvent([this](const detail::WiiEvent &event) {
