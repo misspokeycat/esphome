@@ -1,5 +1,6 @@
 import esphome.codegen as cg
 from esphome.components import binary_sensor, sensor
+from esphome.components.esp32 import add_idf_sdkconfig_option
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_BATTERY_LEVEL,
@@ -18,7 +19,7 @@ from esphome.const import (
     UNIT_PERCENT,
 )
 
-DEPENDENCIES = ["binary_sensor", "sensor"]
+DEPENDENCIES = ["esp32", "binary_sensor", "sensor"]
 AUTO_LOAD = ["binary_sensor", "sensor"]
 
 CONF_SYNCING = "syncing"
@@ -97,6 +98,10 @@ CONFIG_SCHEMA = cv.Schema(
 
 
 async def to_code(config):
+    add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
+    add_idf_sdkconfig_option("CONFIG_BT_BLUEDROID_ENABLED", True)
+    add_idf_sdkconfig_option("CONFIG_BT_CLASSIC_ENABLED", True)
+
     var = cg.new_Pvariable(config[CONF_ID])
 
     await cg.register_component(var, config)
