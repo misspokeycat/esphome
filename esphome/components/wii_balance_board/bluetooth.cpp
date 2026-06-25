@@ -701,8 +701,35 @@ static const esp_vhci_host_callback_t callback = {sendReady, recv};
 Bluetooth::Bluetooth() : m_impl(std::make_unique<Bluetooth::Impl>(this)) {}
 
 void Bluetooth::init() {
-  if (!btStart()) {
-    ESP_LOGE(TAG, "Failed to initialize Bluetooth");
+  // We drive the controller directly over VHCI (raw HCI), so we only need the
+  // BR/EDR controller up; Bluedroid is not used. btStart() is avoided because it
+  // silently bails with ESP_ERR_INVALID_STATE and gives us no diagnostics.
+  ESP_LOGI(TAG, "BT controller status before init: %d (0=IDLE, 1=INITED, 2=ENABLED)",
+           (int) esp_bt_controller_get_status());
+
+  // Classic only; reclaim the BLE controller memory.
+  esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
+
+  if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_IDLE) {
+    esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    cfg.mode = ESP_BT_MODE_CLASSIC_BT;
+    esp_err_t ret = esp_bt_controller_init(&cfg);
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "esp_bt_controller_init failed: %s", esp_err_to_name(ret));
+      return;
+    }
+  }
+
+  if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_INITED) {
+    esp_err_t ret = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT);
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "esp_bt_controller_enable failed: %s", esp_err_to_name(ret));
+      return;
+    }
+  }
+
+  if (esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED) {
+    ESP_LOGE(TAG, "BT controller not enabled, status=%d", (int) esp_bt_controller_get_status());
     return;
   }
 
