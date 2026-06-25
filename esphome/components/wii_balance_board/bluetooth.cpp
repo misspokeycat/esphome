@@ -21,7 +21,7 @@ static const char *TAG = "bluetooth";
 
 static_assert(CONFIG_BT_ENABLED && CONFIG_BLUEDROID_ENABLED,
               "Bluetooth is not enabled! Please run `make menuconfig` to and enable it");
-static_assert(CONFIG_CLASSIC_BT_ENABLED, "Board does not support Bluetooth BR/EDR");
+static_assert(CONFIG_BT_CLASSIC_ENABLED, "Board does not support Bluetooth BR/EDR");
 
 namespace esphome::wii_balance_board::detail {
 

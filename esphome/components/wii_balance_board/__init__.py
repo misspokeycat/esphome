@@ -101,6 +101,12 @@ async def to_code(config):
     add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
     add_idf_sdkconfig_option("CONFIG_BT_BLUEDROID_ENABLED", True)
     add_idf_sdkconfig_option("CONFIG_BT_CLASSIC_ENABLED", True)
+    # The controller must be built in dual mode (BTDM); enabling classic at the
+    # Bluedroid host layer alone leaves the controller BLE-only, which frees the
+    # BR/EDR memory at boot and makes btStart() fail with ESP_ERR_INVALID_STATE.
+    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BTDM", True)
+    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BLE_ONLY", False)
+    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY", False)
 
     var = cg.new_Pvariable(config[CONF_ID])
 
