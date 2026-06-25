@@ -2,7 +2,9 @@
 #include "wii_balance_board.h"
 
 #include "esphome/core/application.h"
+#include "esphome/core/hal.h"
 
+#include <driver/gpio.h>
 #include <numeric>
 #include "utils.h"
 
@@ -119,8 +121,8 @@ void WiiBalanceBoard::board_sample(uint16_t handle, uint8_t battery, uint8_t ref
 
 void WiiBalanceBoard::setup() {
   if (led_pin_ >= 0) {
-    pinMode(led_pin_, OUTPUT);
-    digitalWrite(led_pin_, HIGH);
+    gpio_set_direction((gpio_num_t) led_pin_, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t) led_pin_, 1);
   }
   bluetooth.init();
   bluetooth.onReady([](auto) { ESP_LOGI(TAG, "Bluetooth initialized"); });
@@ -130,19 +132,19 @@ void WiiBalanceBoard::setup() {
                    [this](const detail::ScanStarted &) {
                      syncing_->publish_state(true);
                      if (led_pin_ >= 0) {
-                       digitalWrite(led_pin_, LOW);
+                       gpio_set_level((gpio_num_t) led_pin_, 0);
                      }
                    },
                    [this](const detail::ScanStopped &) {
                      syncing_->publish_state(false);
                      if (led_pin_ >= 0) {
-                       digitalWrite(led_pin_, HIGH);
+                       gpio_set_level((gpio_num_t) led_pin_, 1);
                      }
                    },
                    [this](const detail::BalanceBoardConnected &board) {
                      syncing_->publish_state(false);
                      if (led_pin_ >= 0) {
-                       digitalWrite(led_pin_, HIGH);
+                       gpio_set_level((gpio_num_t) led_pin_, 1);
                      }
                      sync(false);
                      this->board_connected(board.handle);

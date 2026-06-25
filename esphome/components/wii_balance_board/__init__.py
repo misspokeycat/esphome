@@ -101,12 +101,15 @@ async def to_code(config):
     add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
     add_idf_sdkconfig_option("CONFIG_BT_BLUEDROID_ENABLED", True)
     add_idf_sdkconfig_option("CONFIG_BT_CLASSIC_ENABLED", True)
-    # The controller must be built in dual mode (BTDM); enabling classic at the
-    # Bluedroid host layer alone leaves the controller BLE-only, which frees the
-    # BR/EDR memory at boot and makes btStart() fail with ESP_ERR_INVALID_STATE.
-    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BTDM", True)
+    # The controller mode must include BR/EDR. Enabling classic only at the
+    # Bluedroid host layer leaves the controller BLE-only, which frees the BR/EDR
+    # memory at boot so esp_bt_controller_init() fails with ESP_ERR_INVALID_STATE.
+    # We talk raw HCI over VHCI (no Bluedroid host) and never use BLE, so build
+    # the controller BR/EDR-only. NOTE: these only take effect with the esp-idf
+    # framework; under arduino the controller is precompiled and ignores them.
+    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY", True)
     add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BLE_ONLY", False)
-    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY", False)
+    add_idf_sdkconfig_option("CONFIG_BTDM_CTRL_MODE_BTDM", False)
 
     var = cg.new_Pvariable(config[CONF_ID])
 

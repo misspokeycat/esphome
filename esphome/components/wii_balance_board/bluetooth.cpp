@@ -1,7 +1,6 @@
 #include "bluetooth.h"
 #include "esphome/core/log.h"
 
-#include <esp32-hal-bt.h>
 #include <esp_bt.h>
 
 #include <unordered_map>
@@ -19,7 +18,7 @@
 
 static const char *TAG = "bluetooth";
 
-static_assert(CONFIG_BT_ENABLED && CONFIG_BLUEDROID_ENABLED,
+static_assert(CONFIG_BT_ENABLED && CONFIG_BT_BLUEDROID_ENABLED,
               "Bluetooth is not enabled! Please run `make menuconfig` to and enable it");
 static_assert(CONFIG_BT_CLASSIC_ENABLED, "Board does not support Bluetooth BR/EDR");
 
